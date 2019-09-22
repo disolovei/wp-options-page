@@ -2,7 +2,25 @@
 /**
  * 
  */
-function vlnsk_output_option_page() {
+function vlnsk_select_option_callback( $args ) {
+    ?>
+
+    <label>
+        <select 
+            name="<?php echo esc_attr( $args['name'] ); ?>" 
+            id="<?php echo esc_attr( $args['id'] ); ?>"
+            >
+            <option value="1">1</option>
+            </select>
+    </label>
+
+    <?php
+}
+
+/**
+ * 
+ */
+function vlsnk_custom_option_page_callback() {
     $active_tab = ! empty( $_GET['tab'] ) ? strip_tags( $_GET['tab'] ) : 'general';
     ?>
 
@@ -20,14 +38,14 @@ function vlnsk_output_option_page() {
 
 		<?php
 			if ( 'general' == $active_tab ) {
-				settings_fields( 'rvr_profile_settings_section' );
-				do_settings_sections( 'rvr_profile_settings' );
+				settings_fields( 'vlnsk_first_settings_group' );
+				do_settings_sections( 'vlsnk_custom_option_page_general' );
 			} else {
-				settings_fields( 'rvr_primary_settings_section' );
-				do_settings_sections( 'rvr_primary_settings' );
+				settings_fields( 'vlnsk_second_settings_group' );
+				do_settings_sections( 'vlsnk_custom_option_page_second' );
 			}
 			submit_button();
-			?>
+		?>
 
 	</form>
 
@@ -38,13 +56,23 @@ function vlnsk_output_option_page() {
  * 
  */
 function vlnsk_add_option_page() {
-    add_submenu_page( 
+    add_menu_page( 
+        'Custom option page',
+        'Custom option page',
+        'manage_options',
+        'custom_option_page_slug',
+        'vlsnk_custom_option_page_callback',
+        'dashicons-admin-generic',
+        81
+     );
+
+     add_submenu_page( 
         'options-general.php', 
         'Custom options page', 
         'Custom options page', 
         'manage_options', 
         'custom_option_page_slug', 
-        'vlnsk_output_option_page'
+        'vlsnk_custom_option_page_callback'
      );
 }
 add_action( 'admin_menu', 'vlnsk_add_option_page' );
@@ -59,10 +87,48 @@ function vlnsk_first_section_desc() {
 /**
  * 
  */
-function vlnsk_create_options() {
-    // add_settings_section( 'vlnsk_first_section', 'First section title', null, 'options' );
-    // or
-    add_settings_section( 'vlnsk_first_section', 'First section title', 'vlnsk_first_section_desc', 'options' );
-    add_settings_section( 'vlnsk_second_section', 'Second section title', 'vlnsk_second_section_desc', 'options' );
+function vlnsk_second_section_desc() {
+    echo '<p>First section description</p>';
 }
-add_action( 'admin_init', 'vlnsk_create_options' );
+
+/**
+ * 
+ */
+function vlnsk_create_options() {
+    //First tab
+    add_settings_section( 'vlnsk_first_section', 'First section title', 'vlnsk_first_section_desc', 'vlsnk_custom_option_page_general' );
+
+    add_settings_field( 
+        'vlnsk_first_select_option', 
+        'First select option', 
+        'vlnsk_select_option_callback', 
+        'vlsnk_custom_option_page_slug', 
+        'vlnsk_first_section', 
+        array( 
+            'id'        => 'vlnsk-first-select-option',
+            'name'      => 'vlnsk_first_select_option',
+            'options'   => array(),
+        )
+    );
+
+    register_setting( 'vlnsk_first_settings_group', 'vlnsk_first_select_option' );
+
+     //Second tab
+    add_settings_section( 'vlnsk_second_section', 'Second section title', 'vlnsk_second_section_desc', 'vlsnk_custom_option_page_second' );
+
+    add_settings_field( 
+        'vlnsk_second_select_option', 
+        'Second select option', 
+        'vlnsk_select_option_callback', 
+        'vlsnk_custom_option_page_slug', 
+        'vlnsk_first_section', 
+        array( 
+            'id'        => 'vlnsk-first-select-option',
+            'name'      => 'vlnsk_first_select_option',
+            'options'   => array(),
+        )
+    );
+
+    register_setting( 'vlnsk_first_settings_group', 'vlnsk_first_select_option' );
+}
+add_action( 'admin_menu', 'vlnsk_create_options' );
